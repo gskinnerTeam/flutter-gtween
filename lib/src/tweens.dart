@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 
@@ -14,7 +16,7 @@ class GFade extends GTween<double> {
 
 extension GFadeExtension on GTweener {
   GTweener fade({double from = 0, double to = 1, Curve? curve}) {
-    return copyWith(tweens: List.from(tweens)..add(GFade(curve: curve, from: from, to: to)));
+    return copyWith(tweens: List.of(tweens)..add(GFade(curve: curve, from: from, to: to)));
   }
 }
 
@@ -32,7 +34,7 @@ class GScale extends GTween<double> {
 
 extension GScaleExtension on GTweener {
   GTweener scale({double from = 0, double to = 1, Curve? curve}) {
-    return copyWith(tweens: List.from(tweens)..add(GScale(curve: curve, from: from, to: to)));
+    return copyWith(tweens: List.of(tweens)..add(GScale(curve: curve, from: from, to: to)));
   }
 }
 
@@ -50,7 +52,7 @@ class GMove extends GTween<Offset> {
 
 extension GMoveExtension on GTweener {
   GTweener move({Offset from = Offset.zero, required Offset to, Curve? curve}) {
-    return copyWith(tweens: List.from(tweens)..add(GMove(curve: curve, from: from, to: to)));
+    return copyWith(tweens: List.of(tweens)..add(GMove(curve: curve, from: from, to: to)));
   }
 }
 
@@ -78,6 +80,31 @@ extension GCustomExtension on GTweener {
     Curve? curve,
     required Widget Function(BuildContext context, Widget child, Animation<double> anim) builder,
   }) {
-    return copyWith(tweens: List.from(tweens)..add(GCustom(curve: curve, from: from, to: to, builder: builder)));
+    return copyWith(tweens: List.of(tweens)..add(GCustom(curve: curve, from: from, to: to, builder: builder)));
+  }
+}
+
+/// ///////////////////////////////////
+/// Head Shake
+class GHeadShake extends GTween<double> {
+  GHeadShake([this.magnitude = 1]) : super(from: 0, to: 1, curve: null);
+  final double magnitude;
+
+  // SB: Override [tween] method to set the default duration to something that works better for this effect
+  @override
+  GTweener tween(Widget child, {Key? key}) {
+    return super.tween(child, key: key).copyWith(duration: .5.seconds);
+  }
+
+  @override
+  Widget build(BuildContext context, Widget child, Animation<double> anim) {
+    double x = sin(anim.value * pi * 4);
+    return Transform.translate(offset: Offset(x * 15 * magnitude, 0), child: child);
+  }
+}
+
+extension GHeadShakeExtension on GTweener {
+  GTweener headShake() {
+    return copyWith(tweens: List.of(tweens)..add(GHeadShake()));
   }
 }
