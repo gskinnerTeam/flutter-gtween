@@ -7,3 +7,7 @@ extension DurationExtensions on int {
   Duration get hours => Duration(hours: this);
   Duration get days => Duration(days: this);
 }
+
+extension DoubleDurationExtensions on double {
+  Duration get seconds => Duration(milliseconds: (this * 1000).round());
+}
