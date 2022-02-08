@@ -62,6 +62,11 @@ class _TweenExamplesState extends State<TweenExamples> {
                     /// default fade (single shot) w/ extensions
                     const FlutterLogo(size: 50).gTween.fade(),
 
+                    /// delays
+                    const FlutterLogo(size: 50).gTween.fade().withDelay(1.seconds),
+                    const FlutterLogo(size: 50).gTween.fade().withDelay(2.seconds),
+                    const FlutterLogo(size: 50).gTween.fade().withDelay(3.seconds),
+
                     /// controlled fade
                     GTweener(
                       [GFade()],
@@ -70,18 +75,18 @@ class _TweenExamplesState extends State<TweenExamples> {
                     ),
 
                     /// Simple controlled-scale with extensions, uses onInit to cache the controller
-                    const FlutterLogo(size: 75).gTween.scale().copyWith(onInit: (t) => _scaleTween0 = t),
+                    const FlutterLogo(size: 75).gTween.scale().withInit((t) => _scaleTween0 = t),
 
                     /// Alternate syntax, using [GTween].tween()
-                    GScale().tween(const FlutterLogo(size: 75)).copyWith(onInit: (t) => _scaleTween1 = t),
+                    GScale().tween(const FlutterLogo(size: 75)).withInit((t) => _scaleTween1 = t),
 
                     /// Head-shake with cached controller
-                    GHeadShake().tween(const FlutterLogo(size: 75)).copyWith(onInit: (t) => _headShakeTween = t),
+                    GHeadShake().tween(const FlutterLogo(size: 75)).withInit((t) => _headShakeTween = t),
 
                     /// Custom tween example
                     const FlutterLogo(size: 100).gTween.custom(builder: (_, child, anim) {
                       return Opacity(opacity: anim.value, child: child);
-                    }).copyWith(onInit: (t) => _customTween0 = t),
+                    }).withInit((t) => _customTween0 = t),
 
                     /// Complex custom tween
                     /// Normally you'd stick this in method somewhere, like:
@@ -96,7 +101,7 @@ class _TweenExamplesState extends State<TweenExamples> {
                             scale: anim.drive(Tween(begin: .5, end: 1)), // tween scale from 50% to 100% for example
                             child: AlignTransition(alignment: alignAnim, child: child),
                           ));
-                    }).copyWith(onInit: (t) => _customTween1 = t, duration: 5.seconds),
+                    }).copyWith(onInit: (t) => _moveTween = t, duration: 5.seconds),
 
                     /// controlled-move with extensions (from is optional, to is required)
                     const FlutterLogo(size: 75)
