@@ -107,14 +107,18 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
     Widget child = widget.child;
     // Apply all tweens
     for (var tween in widget.tweens) {
-      // If the tween has its own curve, use that, otherwise use the tweeners
-      final curve = tween.curve == null ? CurvedAnimation(parent: anim, curve: widget.curve) : anim;
+      // If the tween has its own curve, feed it a linear animation. Otherwise, use the base curve.
+      final curve = tween.curve != null ? anim : CurvedAnimation(parent: anim, curve: widget.curve);
       child = tween.build(context, child, curve);
     }
     return child;
   }
 }
 
+
 extension GTweenerExtension on Widget {
-  GTweener get tween => GTweener(const [], child: this);
+  /// SB: This should probably have all the constructor args that GTweener has and be `gTween(...)` instead. 
+  /// Downside is more for us to write/maintain. We'd have to duplicate default values and a bunch of params.
+  ///  Added some discussion about this to the readme.
+  GTweener get gTween => GTweener(const [], child: this);
 }

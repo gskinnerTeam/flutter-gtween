@@ -8,7 +8,6 @@ class GFade extends GTween<double> {
 
   @override
   Widget build(BuildContext context, Widget child, Animation<double> anim) {
-    // TODO:  Apply from/to
     return FadeTransition(opacity: applyCurve(anim).drive(Tween(begin: from, end: to)), child: child);
   }
 }
@@ -58,8 +57,8 @@ extension GMoveExtension on GTweener {
 /// ///////////////////////////////////
 /// Custom
 //TODO: This could be generic? doesn't need to just support double... but is it worthwhile? They can easily lerp with a Tween themselves...
-class GTweenBuilder extends GTween<double> {
-  GTweenBuilder({
+class GCustom extends GTween<double> {
+  GCustom({
     double from = 0,
     double to = 1,
     Curve? curve,
@@ -72,13 +71,13 @@ class GTweenBuilder extends GTween<double> {
   Widget build(BuildContext context, Widget child, Animation<double> anim) => builder(context, child, anim);
 }
 
-extension GTweenBuilderExtension on GTweener {
-  GTweener tweenBuilder({
+extension GCustomExtension on GTweener {
+  GTweener custom({
     double from = 0,
     double to = 1,
     Curve? curve,
     required Widget Function(BuildContext context, Widget child, Animation<double> anim) builder,
   }) {
-    return copyWith(tweens: List.from(tweens)..add(GTweenBuilder(curve: curve, from: from, to: to, builder: builder)));
+    return copyWith(tweens: List.from(tweens)..add(GCustom(curve: curve, from: from, to: to, builder: builder)));
   }
 }
