@@ -3,23 +3,15 @@ library gtween;
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:gtween/src/abstract_gtween.dart';
+import 'package:gtween/src/gtween.dart';
+import 'package:gtween/src/gtweener_controller.dart';
 
-// SB: Just an idea on how we could have a controller, could also just put these methods on the state itself.
-class GTweenController {
-  GTweenController(this.animation);
-  final AnimationController animation;
+typedef TweenCallback = void Function(GTweenerController controller);
 
-  void restart() => animation.forward(from: 0);
-  void play() => animation.forward();
-  void pause() => animation.stop();
-  void reset() => animation
-    ..stop()
-    ..value = animation.lowerBound;
-}
-
-typedef TweenCallback = void Function(GTweenController controller);
-
+/// A stateful widget that manages an AnimationController driving N tweens.
+/// Exposes a [GTweenerController] that ancestor widgets can use to control
+/// the internal animation controller.
+/// Notifies listeners of status via onInit, onUpdate and onComplete delegates.
 class GTweener<T> extends StatefulWidget {
   static Duration defaultDuration = const Duration(milliseconds: 300);
 
@@ -35,48 +27,33 @@ class GTweener<T> extends StatefulWidget {
     this.onComplete,
     Key? key,
   }) : super(key: key);
+
+  /// A list of of GTween objects
   final List<GTween> tweens;
+
+  /// The child to be tweened
   final Widget child;
+
+  /// The duration of the tween
   final Duration? duration;
+
+  /// Initial delay for the tween when using autoplay
   final Duration? delay;
+
+  /// Determines whether tween starts playing automatically or waits to be started
   final bool autoPlay;
+
+  /// The easing curve, defaults to linear.
   final Curve curve;
 
+  /// Called once, when the tweener is first initialized.
   final TweenCallback? onInit;
+
+  /// Called each time the animation is updated
   final TweenCallback? onUpdate;
+
+  /// Called each time the animation completes
   final TweenCallback? onComplete;
-
-  GTweener copyWith({
-    List<GTween>? tweens,
-    Widget? child,
-    Duration? duration,
-    Duration? delay,
-    bool? autoPlay,
-    Curve? curve,
-    Key? key,
-    TweenCallback? onInit,
-    TweenCallback? onUpdate,
-    TweenCallback? onComplete,
-  }) =>
-      GTweener(
-        tweens ?? this.tweens,
-        child: child ?? this.child,
-        duration: duration ?? this.duration,
-        delay: delay ?? this.delay,
-        autoPlay: autoPlay ?? this.autoPlay,
-        curve: curve ?? this.curve,
-        onInit: onInit ?? this.onInit,
-        onUpdate: onUpdate ?? this.onUpdate,
-        onComplete: onComplete ?? this.onComplete,
-      );
-
-  GTweener withDuration(Duration value) => copyWith(duration: value);
-  GTweener withDelay(Duration value) => copyWith(delay: value);
-  GTweener withAutoPlay(bool value) => copyWith(autoPlay: value);
-  GTweener withCurve(Curve value) => copyWith(curve: value);
-  GTweener withInit(TweenCallback value) => copyWith(onInit: value);
-  GTweener withUpdate(TweenCallback value) => copyWith(onUpdate: value);
-  GTweener withComplete(TweenCallback value) => copyWith(onComplete: value);
 
   @override
   State<GTweener> createState() => GTweenerState();
@@ -90,7 +67,7 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
   )..addListener(_handleAnimationUpdate);
 
   // Controller is public so it can be accessed via GlobalKey
-  late GTweenController controller = GTweenController(_anim);
+  late GTweenerController controller = GTweenerController(_anim);
 
   Timer? _delayTimer;
 
@@ -98,7 +75,7 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
   void initState() {
     super.initState();
     if (widget.autoPlay) {
-      if (widget.delay != null) {
+      if (widget.delay != null && widget.delay != Duration.zero) {
         _createDelayTimer();
       } else {
         _anim.forward();
@@ -114,6 +91,10 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
     super.dispose();
   }
 
+  /// TODO: Add tests around changing the delay or duration externally.
+  /// Add tests for onComplete and onInit
+  /// Add tests for auto-play / manual play
+  /// Add some sort of dispose test?
   @override
   void didUpdateWidget(covariant GTweener oldWidget) {
     if (oldWidget.duration != widget.duration) {
@@ -132,6 +113,10 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
     _delayTimer = Timer.periodic(widget.delay!, _handleDelayTimerComplete);
   }
 
+  void _handleDelayTimerComplete(Timer timer) {
+    if (_anim.isAnimating == false) controller.forward();
+  }
+
   void _handleAnimationUpdate() {
     widget.onUpdate?.call(controller);
     if (_anim.isCompleted) {
@@ -142,27 +127,12 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
 
   @override
   Widget build(BuildContext context) {
-    // Skip wrapping the tweener at all if our tweens are empty.
-    if (widget.tweens.isEmpty) return widget.child;
-
     Widget child = widget.child;
-    // Apply all tweens
     for (var tween in widget.tweens) {
       // If the tween has its own curve, feed it a linear animation. Otherwise, use the base curve.
       final curve = tween.curve != null ? _anim : CurvedAnimation(parent: _anim, curve: widget.curve);
-      child = tween.build(context, child, curve);
+      child = tween.build(child, curve);
     }
     return child;
   }
-
-  void _handleDelayTimerComplete(Timer timer) {
-    if (_anim.isAnimating == false) controller.play();
-  }
-}
-
-extension GTweenerExtension on Widget {
-  /// SB: This should probably have all the constructor args that GTweener has and be `gTween(...)` instead.
-  /// Downside is more for us to write/maintain. We'd have to duplicate default values and a bunch of params.
-  ///  Added some discussion about this to the readme.
-  GTweener get gTween => GTweener(const [], child: this);
 }

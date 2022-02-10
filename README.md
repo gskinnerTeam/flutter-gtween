@@ -3,7 +3,7 @@
 
 or
 
-`FlutterLogo().gTween.fade()`
+`FlutterLogo().gTween.fade().withDelay(1.seconds)`
 
 # Advanced Usage
 ```dart
@@ -45,22 +45,20 @@ FlutterLogo().gTween.custom(builder: (_, child, anim) {
       ));
 });
 ```           
-# Handoff Notes:
-* Delay is not implemented
-* I implemented scale/fade/move/custom effects for example
-* I added some extensions to int, for 1.seconds, 500.milliseconds, etc
-* One area I'm not sure on is extension method, `.gTween.copyWith()` vs `gTween(...)`
-There's 3 approaches I see that we could take.
-```dart
- // just use copyWith (current approach)
-Logo().gTween.copyWith(duration: 1.seconds).fade();
-
-// copy all constructor params (+ default values) for  GTweener, into the tween() extension method
-Logo().gTween(duration: 1.seconds).fade();
-
-// create dedicated `withX` methods on GTweener that are sugar over copyWith
-Logo().gTween.withDuration(1.seconds).fade()
-```
+# Notes:
+* Implemented effects so far:
+  * Scale
+  * Move
+  * Fade
+  * GCustom
+  * GHeadShake
+  * Rotate,
+  * ScaleX/ScaleY
+  * Color
+  
+* Todo:
+  * Other effects (bounce, flash, pulse, rubberband, shakeX, shakeY, swing, tada, jello, heartbeat)
+  * Motion effects (zoomInDown, slideInLeft, bounceOut, rotateInDownLeft. lightSpeedInRight, flipInX, fadeOutBottomRight  etc)
 
 Example usage here:
 https://github.com/gskinnerTeam/flutter-gtween/blob/master/example/lib/main.dart
