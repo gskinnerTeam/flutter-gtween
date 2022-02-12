@@ -55,6 +55,7 @@ FlutterLogo().gTween.custom(builder: (_, child, anim) {
   * Rotate,
   * ScaleX/ScaleY
   * Color
+  * Blur
   
 * Todo:
   * Other effects (bounce, flash, pulse, rubberband, shakeX, shakeY, swing, tada, jello, heartbeat)
