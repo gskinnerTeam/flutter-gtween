@@ -14,11 +14,9 @@ class GCustom extends GTween<double> {
 
   CustomTweenBuilder builder;
 
+  // pass a curved Animation<double> into the external builder
   @override
-  Widget build(Widget child, Animation<double> anim) => builder(
-        child,
-        tweenAndCurveAnim(anim), // pass a curved Animation<double> into the builder
-      );
+  Widget build(Widget child, Animation<double> anim) => builder(child, tweenAndCurveAnim(anim));
 }
 
 extension GCustomExtension on GTweener {

@@ -8,29 +8,27 @@ extension GTweenerExtension on Widget {
 
 /// Add staggered animation to a lists of widgets
 extension ListExtensions on List<Widget> {
+  /// Wraps each list child in a tweener and sets the various params / callbacks.
+  /// Calculates the delay for each child using:
+  ///   delay + interval * childIndex
+  /// Will skip any delay for children beyond maxIndex, but will still apply the tween.
   List<Widget> gTweenSequence(
     List<GTween> tweens, {
-    Duration interval = const Duration(milliseconds: 100),
+    Duration? interval,
     Curve curve = Curves.linear,
     Duration delay = Duration.zero,
-    int? maxItems,
-    void Function(GTweenerController controllers)? onInit,
-    void Function(GTweenerController controllers)? onUpdate,
-    void Function(GTweenerController controllers)? onComplete,
+    int? maxIndex,
+    void Function(GTweenerController anim)? onInit,
+    void Function(GTweenerController anim)? onUpdate,
+    void Function(GTweenerController anim)? onComplete,
   }) {
     return map(
       (w) {
-        bool doDelay = maxItems == null || indexOf(w) < maxItems;
-        final del = doDelay ? delay + interval * indexOf(w) : Duration.zero;
-        return GTweener(
-          tweens,
-          delay: del,
-          curve: curve,
-          child: w,
-          onInit: onInit,
-          onUpdate: onUpdate,
-          onComplete: onComplete,
-        );
+        bool doDelay = maxIndex == null || indexOf(w) < maxIndex;
+        final i = interval ?? GTweener.defaultSequenceInterval;
+        final del = doDelay ? delay + i * indexOf(w) : Duration.zero;
+        return GTweener(tweens,
+            delay: del, curve: curve, child: w, onInit: onInit, onUpdate: onUpdate, onComplete: onComplete);
       },
     ).toList();
   }

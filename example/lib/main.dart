@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => MaterialApp(home: TweenExamples());
+  Widget build(BuildContext context) => const MaterialApp(home: TweenExamples());
 }
 
 class TweenExamples extends StatefulWidget {
@@ -22,17 +22,13 @@ class TweenExamples extends StatefulWidget {
 }
 
 class _TweenExamplesState extends State<TweenExamples> {
-  GTweenerController? _fadeTween0;
-  GTweenerController? _fadeTween1;
-  GTweenerController? _fadeTween2;
-  GTweenerController? _scaleTween0;
-  GTweenerController? _scaleTween1;
-  GTweenerController? _moveTween;
-  GTweenerController? _customTween0;
-  GTweenerController? _customTween1;
   GTweenerController? _headShakeTween0;
   GTweenerController? _headShakeTween1;
-  final List<GTweenerController> _sequencedControllers = [];
+  final List<GTweenerController> _registeredControllers = [];
+  GTweenerController registerController(GTweenerController c) {
+    _registeredControllers.add(c);
+    return c;
+  }
 
   ValueKey<int> _key = const ValueKey(0);
 
@@ -47,7 +43,10 @@ class _TweenExamplesState extends State<TweenExamples> {
               ///
               const Text('Single Shot'),
               OutlinedButton(
-                onPressed: () => setState(() => _key = ValueKey(Random().nextInt(99999))),
+                onPressed: () => setState(() {
+                  _key = ValueKey(Random().nextInt(99999));
+                  _registeredControllers.clear();
+                }),
                 child: const Text('Clear All State'),
               ),
               Flexible(
@@ -66,16 +65,6 @@ class _TweenExamplesState extends State<TweenExamples> {
 
                     /// Complex 3-part tween
                     const FlutterLogo(size: 50).gTweener.fade().scale().move(from: const Offset(-40, -40)),
-
-                    /// delays
-
-                    Column(
-                      children: const [
-                        FlutterLogo(),
-                        FlutterLogo(),
-                        FlutterLogo(),
-                      ].gTweenSequence([const GFade()], interval: 1.seconds),
-                    ),
                   ],
                 ),
               ),
@@ -84,18 +73,8 @@ class _TweenExamplesState extends State<TweenExamples> {
               // Imperative control
               OutlinedButton(
                 onPressed: () {
-                  _scaleTween0?.restart();
-                  _scaleTween1?.restart();
-                  _fadeTween0?.restart();
-                  _fadeTween1?.restart();
-                  _fadeTween2?.restart();
-                  _moveTween?.restart();
-                  _customTween0?.restart();
-                  _customTween1?.restart();
-                  _headShakeTween0?.restart();
-                  _headShakeTween1?.restart();
-                  for (var s in _sequencedControllers) {
-                    s.restart();
+                  for (var s in _registeredControllers) {
+                    s.forward(from: 0);
                   }
                 },
                 child: const Text('.restart()'),
@@ -106,15 +85,30 @@ class _TweenExamplesState extends State<TweenExamples> {
                     /// controlled fade
                     GTweener(
                       const [GFade()],
-                      onInit: (controller) => _fadeTween0 = controller,
+                      onInit: registerController,
                       child: const FlutterLogo(size: 25),
                     ),
 
                     /// scale+rotate with extensions, uses onInit to cache the controller
-                    const FlutterLogo(size: 75).gTweener.scale().rotate(from: -180).withInit((t) => _scaleTween0 = t),
+                    const FlutterLogo(size: 75).gTweener.scale().rotate(from: -180).withInit(registerController),
 
                     /// Alternate syntax, using [GTween].tween()
-                    const GScale().tween(const FlutterLogo(size: 75)).withInit((t) => _scaleTween1 = t),
+                    const GScale().tween(const FlutterLogo(size: 75)).withInit(registerController),
+
+                    /// Test Blur
+                    const GBlur(from: Offset(20, 20))
+                        .tween(const Text("Blur!", style: TextStyle(fontSize: 22)))
+                        .withInit(registerController)
+                        .withDuration(.5.seconds),
+
+                    /// Sequence
+                    Column(
+                      children: const [
+                        FlutterLogo(),
+                        FlutterLogo(),
+                        FlutterLogo(),
+                      ].gTweenSequence([const GFade()], interval: 1.seconds, onInit: registerController),
+                    ),
 
                     /// Head-shake with cached controller (widget style)
                     Container(
@@ -126,7 +120,7 @@ class _TweenExamplesState extends State<TweenExamples> {
                         duration: GHeadShake.defaultDuration,
                         onInit: (controller) => _headShakeTween0 = controller,
                         child: OutlinedButton(
-                          onPressed: () => _headShakeTween0?.restart(),
+                          onPressed: () => _headShakeTween0?.forward(from: 0),
                           child: const Text('Submit'),
                         ),
                       ),
@@ -137,7 +131,7 @@ class _TweenExamplesState extends State<TweenExamples> {
                       padding: const EdgeInsets.all(10),
                       color: Colors.blue.shade100,
                       child: OutlinedButton(
-                        onPressed: () => _headShakeTween1?.restart(),
+                        onPressed: () => _headShakeTween1?.forward(from: 0),
                         child: const Text('Submit'),
                       ).gTweener.headShake().withInit((t) => _headShakeTween1 = t),
                     ),
@@ -145,7 +139,7 @@ class _TweenExamplesState extends State<TweenExamples> {
                     /// Custom tween example
                     const FlutterLogo(size: 100).gTweener.custom(builder: (child, anim) {
                       return Opacity(opacity: anim.value, child: child);
-                    }).withInit((t) => _customTween0 = t),
+                    }).withInit(registerController),
 
                     /// Complex custom tween
                     /// Normally you'd stick this in method somewhere, like:
@@ -162,21 +156,21 @@ class _TweenExamplesState extends State<TweenExamples> {
                               scale: anim.drive(Tween(begin: .8, end: 1)), // tween scale from 50% to 100% for example
                               child: AlignTransition(alignment: alignAnim, child: child),
                             ));
-                      }).copyWith(onInit: (t) => _customTween1 = t, duration: 2.seconds),
+                      }).copyWith(onInit: registerController, duration: 2.seconds),
                     ),
 
                     /// controlled-move with extensions
                     const FlutterLogo(size: 75)
                         .gTweener
                         .move(from: const Offset(-100, 0), to: const Offset(0, 0), curve: Curves.easeOutBack)
-                        .copyWith(onInit: (t) => _moveTween = t, duration: 3.seconds),
+                        .copyWith(onInit: registerController, duration: 3.seconds),
 
                     /// Kitchen sink controllable multi-tween
                     GTweener(
                       const [GFade(), GScale(curve: Curves.easeOutBack, from: .8)],
                       duration: const Duration(seconds: 1),
                       curve: Curves.easeInCubic,
-                      onInit: (c) => _fadeTween1 = c..forward(),
+                      onInit: (c) => registerController(c)..forward(),
                       // onUpdate: (_) => print('Update: ${_fadeTween1?.animation.value}'),
                       // onComplete: (_) => print('Complete'),
                       autoPlay: false,
@@ -187,7 +181,7 @@ class _TweenExamplesState extends State<TweenExamples> {
                     const FlutterLogo(size: 100).gTweener.fade().scale(curve: Curves.easeOutBack, from: .8).copyWith(
                           duration: 1.2.seconds,
                           curve: Curves.easeInCubic,
-                          onInit: (c) => _fadeTween2 = c..forward(),
+                          onInit: (c) => registerController(c)..forward(),
                           // onUpdate: (_) => print('Update: ${_fadeTween2?.animation.value}'),
                           // onComplete: (_) => print('Complete'),
                           autoPlay: false,

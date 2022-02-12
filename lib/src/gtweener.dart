@@ -3,8 +3,8 @@ library gtween;
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:gtween/gtween.dart';
 import 'package:gtween/src/gtween.dart';
-import 'package:gtween/src/gtweener_controller.dart';
 
 typedef TweenCallback = void Function(GTweenerController controller);
 
@@ -14,6 +14,7 @@ typedef TweenCallback = void Function(GTweenerController controller);
 /// Notifies listeners of status via onInit, onUpdate and onComplete delegates.
 class GTweener<T> extends StatefulWidget {
   static Duration defaultDuration = const Duration(milliseconds: 300);
+  static Duration defaultSequenceInterval = const Duration(milliseconds: 100);
 
   const GTweener(
     this.tweens, {
@@ -66,10 +67,10 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
     duration: widget.duration ?? GTweener.defaultDuration,
   )..addListener(_handleAnimationUpdate);
 
+  Timer? _delayTimer;
+
   // Controller is public so it can be accessed via GlobalKey
   late GTweenerController controller = GTweenerController(_anim);
-
-  Timer? _delayTimer;
 
   @override
   void initState() {
@@ -91,10 +92,6 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
     super.dispose();
   }
 
-  /// TODO: Add tests around changing the delay or duration externally.
-  /// Add tests for onComplete and onInit
-  /// Add tests for auto-play / manual play
-  /// Add some sort of dispose test?
   @override
   void didUpdateWidget(covariant GTweener oldWidget) {
     if (oldWidget.duration != widget.duration) {
@@ -114,7 +111,8 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
   }
 
   void _handleDelayTimerComplete(Timer timer) {
-    if (_anim.isAnimating == false) controller.forward();
+    if (_anim.isAnimating == false) _anim.forward();
+    _delayTimer?.cancel();
   }
 
   void _handleAnimationUpdate() {
@@ -129,9 +127,13 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
   Widget build(BuildContext context) {
     Widget child = widget.child;
     for (var tween in widget.tweens) {
-      // If the tween has its own curve, feed it a linear animation. Otherwise, use the base curve.
-      final curve = tween.curve != null ? _anim : CurvedAnimation(parent: _anim, curve: widget.curve);
-      child = tween.build(child, curve);
+      Animation<double> animation = _anim;
+      // If the tween has no curve of its own, apply the parent curve
+      if (tween.curve == null) {
+        animation = CurvedAnimation(parent: _anim, curve: widget.curve);
+      }
+      // Build the tween at current position
+      child = tween.build(child, animation);
     }
     return child;
   }
