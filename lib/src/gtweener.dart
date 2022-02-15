@@ -98,18 +98,12 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
   void _scheduleAutoPlay() {
     _delayTimer?.cancel();
     if (widget.delay == null || widget.delay == Duration.zero) {
-      _autoPlay();
+      _anim.forward();
     } else {
       _delayTimer = Timer.periodic(widget.delay!, (_) {
-        _autoPlay();
+        _anim.forward();
         _delayTimer?.cancel();
       });
-    }
-  }
-
-  void _autoPlay() {
-    if (_anim.value == _anim.lowerBound) {
-      _anim.forward();
     }
   }
 

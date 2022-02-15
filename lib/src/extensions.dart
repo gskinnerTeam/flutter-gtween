@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 
-/// Add `gTween` to all widgets
+/// Add `gTweener` to all widgets
 extension GTweenerExtension on Widget {
   GTweener get gTweener => GTweener(const [], child: this);
 }
