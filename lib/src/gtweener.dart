@@ -65,7 +65,7 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
   late final AnimationController _anim = AnimationController(
     vsync: this,
     duration: widget.duration ?? GTweener.defaultDuration,
-  )..addListener(_handleAnimationUpdate);
+  );
 
   Timer? _delayTimer;
 
@@ -75,6 +75,7 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
   @override
   void initState() {
     super.initState();
+    _anim.addListener(_handleAnimationUpdate);
     if (widget.autoPlay) _scheduleAutoPlay();
     widget.onInit?.call(controller);
   }

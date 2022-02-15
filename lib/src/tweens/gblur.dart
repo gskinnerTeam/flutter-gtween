@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 
@@ -8,7 +10,14 @@ class GBlur extends GTween<Offset> {
   @override
   Widget build(Widget child, Animation<double> anim) {
     final size = tweenAndCurveAnim(anim);
-    return Blur(blurX: size.value.dx, blurY: size.value.dy, child: child);
+    return ImageFiltered(
+      imageFilter: ImageFilter.blur(
+        sigmaX: size.value.dx,
+        sigmaY: size.value.dy,
+        tileMode: TileMode.decal,
+      ),
+      child: child,
+    );
   }
 }
 
