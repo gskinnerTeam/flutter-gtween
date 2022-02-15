@@ -24,9 +24,10 @@ class TweenExamples extends StatefulWidget {
 class _TweenExamplesState extends State<TweenExamples> {
   GTweenerController? _headShakeTween0;
   GTweenerController? _headShakeTween1;
-  final List<GTweenerController> _registeredControllers = [];
-  GTweenerController registerController(GTweenerController c) {
-    _registeredControllers.add(c);
+  final List<GTweenerController> _controllers = [];
+
+  GTweenerController addController(GTweenerController c) {
+    _controllers.add(c);
     return c;
   }
 
@@ -45,7 +46,7 @@ class _TweenExamplesState extends State<TweenExamples> {
               OutlinedButton(
                 onPressed: () => setState(() {
                   _key = ValueKey(Random().nextInt(99999));
-                  _registeredControllers.clear();
+                  _controllers.clear();
                 }),
                 child: const Text('Clear All State'),
               ),
@@ -73,7 +74,7 @@ class _TweenExamplesState extends State<TweenExamples> {
               // Imperative control
               OutlinedButton(
                 onPressed: () {
-                  for (var s in _registeredControllers) {
+                  for (var s in _controllers) {
                     s.forward(from: 0);
                   }
                 },
@@ -85,20 +86,20 @@ class _TweenExamplesState extends State<TweenExamples> {
                     /// controlled fade
                     GTweener(
                       const [GFade()],
-                      onInit: registerController,
+                      onInit: addController,
                       child: const FlutterLogo(size: 25),
                     ),
 
                     /// scale+rotate with extensions, uses onInit to cache the controller
-                    const FlutterLogo(size: 75).gTweener.scale().rotate(from: -180).withInit(registerController),
+                    const FlutterLogo(size: 75).gTweener.scale().rotate(from: -180).withInit(addController),
 
                     /// Alternate syntax, using [GTween].tween()
-                    const GScale().tween(const FlutterLogo(size: 75)).withInit(registerController),
+                    const GScale().tween(const FlutterLogo(size: 75)).withInit(addController),
 
                     /// Test Blur
                     const GBlur(from: Offset(20, 20))
                         .tween(const Text("Blur!", style: TextStyle(fontSize: 22)))
-                        .withInit(registerController)
+                        .withInit(addController)
                         .withDuration(.5.seconds),
 
                     /// Sequence
@@ -107,70 +108,60 @@ class _TweenExamplesState extends State<TweenExamples> {
                         FlutterLogo(),
                         FlutterLogo(),
                         FlutterLogo(),
-                      ].gTweenSequence([const GFade()], interval: 1.seconds, onInit: registerController),
+                      ].gTweenSequence([const GFade()], interval: 1.seconds, onInit: addController),
                     ),
 
                     /// Head-shake with cached controller (widget style)
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      color: Colors.blue.shade100,
-                      child: GTweener(
-                        const [GHeadShake()],
-                        autoPlay: false,
-                        duration: GHeadShake.defaultDuration,
-                        onInit: (controller) => _headShakeTween0 = controller,
-                        child: OutlinedButton(
-                          onPressed: () => _headShakeTween0?.forward(from: 0),
-                          child: const Text('Submit'),
-                        ),
+                    GTweener(
+                      const [GHeadShake()],
+                      autoPlay: false,
+                      duration: GHeadShake.defaultDuration,
+                      onInit: (controller) => _headShakeTween0 = controller,
+                      child: OutlinedButton(
+                        onPressed: () => _headShakeTween0?.forward(from: 0),
+                        child: const Text('Submit'),
                       ),
                     ),
 
                     /// Head-shake with cached controller (extension style)
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      color: Colors.blue.shade100,
-                      child: OutlinedButton(
-                        onPressed: () => _headShakeTween1?.forward(from: 0),
-                        child: const Text('Submit'),
-                      ).gTweener.headShake().withInit((t) => _headShakeTween1 = t),
-                    ),
+                    OutlinedButton(
+                      onPressed: () => _headShakeTween1?.forward(from: 0),
+                      child: const Text('Submit'),
+                    ).gTweener.headShake().withInit((t) => _headShakeTween1 = t),
 
-                    /// Custom tween example
+                    /// Simple custom tween example
                     const FlutterLogo(size: 100).gTweener.custom(builder: (child, anim) {
-                      return Opacity(opacity: anim.value, child: child);
-                    }).withInit(registerController),
+                      return FadeTransition(opacity: anim, child: child);
+                    }).withInit(addController),
 
                     /// Complex custom tween
                     /// Normally you'd stick this in method somewhere, like:
                     ///
-                    ///     FlutterLogo().gTween.custom(builder: AppAnims.doSomeCrazyStuff),
+                    ///     FlutterLogo().gTween.custom(builder: () => AppTweens.customAnim1(widget.data)),
                     ///
-                    SizedBox(
-                      width: 200,
-                      child: const FlutterLogo(size: 150).gTweener.custom(builder: (child, anim) {
-                        final alignAnim = anim.drive(Tween(begin: Alignment.centerRight, end: Alignment.centerLeft));
-                        return FadeTransition(
-                            opacity: anim,
-                            child: ScaleTransition(
-                              scale: anim.drive(Tween(begin: .8, end: 1)), // tween scale from 50% to 100% for example
-                              child: AlignTransition(alignment: alignAnim, child: child),
-                            ));
-                      }).copyWith(onInit: registerController, duration: 2.seconds),
-                    ),
+                    const FlutterLogo(size: 150).gTweener.withDuration(2.seconds).custom(builder: (child, anim) {
+                      final alignAnim = anim.drive(Tween(begin: Alignment.centerRight, end: Alignment.centerLeft));
+                      return FadeTransition(
+                          opacity: anim,
+                          child: ScaleTransition(
+                            scale: anim.drive(Tween(begin: .8, end: 1)), // tween scale from 50% to 100% for example
+                            child: AlignTransition(alignment: alignAnim, child: child),
+                          ));
+                    }).withInit(addController),
 
                     /// controlled-move with extensions
                     const FlutterLogo(size: 75)
                         .gTweener
                         .move(from: const Offset(-100, 0), to: const Offset(0, 0), curve: Curves.easeOutBack)
-                        .copyWith(onInit: registerController, duration: 3.seconds),
+                        .copyWith(onInit: addController, duration: 3.seconds),
 
                     /// Kitchen sink controllable multi-tween
                     GTweener(
                       const [GFade(), GScale(curve: Curves.easeOutBack, from: .8)],
+                      delay: .5.seconds,
                       duration: const Duration(seconds: 1),
                       curve: Curves.easeInCubic,
-                      onInit: (c) => registerController(c)..forward(),
+                      onInit: (c) => addController(c)..forward(),
                       // onUpdate: (_) => print('Update: ${_fadeTween1?.animation.value}'),
                       // onComplete: (_) => print('Complete'),
                       autoPlay: false,
@@ -180,8 +171,9 @@ class _TweenExamplesState extends State<TweenExamples> {
                     /// Kitchen sink with extensions
                     const FlutterLogo(size: 100).gTweener.fade().scale(curve: Curves.easeOutBack, from: .8).copyWith(
                           duration: 1.2.seconds,
+                          delay: .5.seconds,
                           curve: Curves.easeInCubic,
-                          onInit: (c) => registerController(c)..forward(),
+                          onInit: (c) => addController(c)..forward(),
                           // onUpdate: (_) => print('Update: ${_fadeTween2?.animation.value}'),
                           // onComplete: (_) => print('Complete'),
                           autoPlay: false,

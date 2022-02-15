@@ -4,13 +4,13 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:gtween/gtween.dart';
-import 'package:gtween/src/gtween.dart';
 
 typedef TweenCallback = void Function(GTweenerController controller);
 
 /// A stateful widget that manages an AnimationController driving N tweens.
 /// Exposes a [GTweenerController] that ancestor widgets can use to control
 /// the internal animation controller.
+///
 /// Notifies listeners of status via onInit, onUpdate and onComplete delegates.
 class GTweener<T> extends StatefulWidget {
   static Duration defaultDuration = const Duration(milliseconds: 300);
@@ -60,7 +60,7 @@ class GTweener<T> extends StatefulWidget {
   State<GTweener> createState() => GTweenerState();
 }
 
-// Public state so it can be accessed via GlobalKey
+/// Public state so it can be accessed via GlobalKey
 class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin {
   late final AnimationController _anim = AnimationController(
     vsync: this,
@@ -69,19 +69,13 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
 
   Timer? _delayTimer;
 
-  // Controller is public so it can be accessed via GlobalKey
-  late GTweenerController controller = GTweenerController(_anim);
+  // Controller is public so it can be accessed externally
+  late final GTweenerController controller = GTweenerController(_anim);
 
   @override
   void initState() {
     super.initState();
-    if (widget.autoPlay) {
-      if (widget.delay != null && widget.delay != Duration.zero) {
-        _createDelayTimer();
-      } else {
-        _anim.forward();
-      }
-    }
+    if (widget.autoPlay) _scheduleAutoPlay();
     widget.onInit?.call(controller);
   }
 
@@ -97,22 +91,25 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
     if (oldWidget.duration != widget.duration) {
       _anim.duration = widget.duration ?? GTweener.defaultDuration;
     }
-    if (oldWidget.delay != widget.delay) {
-      _delayTimer?.cancel();
-      _createDelayTimer();
-    }
     super.didUpdateWidget(oldWidget);
   }
 
-  void _createDelayTimer() {
+  void _scheduleAutoPlay() {
     _delayTimer?.cancel();
-    if (widget.delay == null) return;
-    _delayTimer = Timer.periodic(widget.delay!, _handleDelayTimerComplete);
+    if (widget.delay == null || widget.delay == Duration.zero) {
+      _autoPlay();
+    } else {
+      _delayTimer = Timer.periodic(widget.delay!, (_) {
+        _autoPlay();
+        _delayTimer?.cancel();
+      });
+    }
   }
 
-  void _handleDelayTimerComplete(Timer timer) {
-    if (_anim.isAnimating == false) _anim.forward();
-    _delayTimer?.cancel();
+  void _autoPlay() {
+    if (_anim.value == _anim.lowerBound) {
+      _anim.forward();
+    }
   }
 
   void _handleAnimationUpdate() {
@@ -127,13 +124,13 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
   Widget build(BuildContext context) {
     Widget child = widget.child;
     for (var tween in widget.tweens) {
-      Animation<double> animation = _anim;
+      Animation<double> tweenAnim = _anim;
       // If the tween has no curve of its own, apply the parent curve
       if (tween.curve == null) {
-        animation = CurvedAnimation(parent: _anim, curve: widget.curve);
+        tweenAnim = CurvedAnimation(parent: _anim, curve: widget.curve);
       }
-      // Build the tween at current position
-      child = tween.build(child, animation);
+      // Build the tween at current position with the desired curve
+      child = tween.build(child, tweenAnim);
     }
     return child;
   }

@@ -3,7 +3,7 @@ import 'package:gtween/gtween.dart';
 
 typedef CustomTweenBuilder = Widget Function(Widget child, Animation<double> anim);
 
-//TODO: Maybe make this generic GCustom<T>, don't want to hurt the common case of tweening a double though.
+//TODO: Maybe make this generic GCustom<T>? don't want to hurt the common case of tweening a double though.
 class GCustom extends GTween<double> {
   GCustom({
     double from = 0,

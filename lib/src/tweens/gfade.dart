@@ -15,25 +15,3 @@ extension GFadeExtension on GTweener {
     return addTween(GFade(curve: curve, from: from, to: to));
   }
 }
-
-class MinSizeRow extends Row {
-  MinSizeRow({
-    Key? key,
-    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
-    MainAxisSize mainAxisSize = MainAxisSize.max,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
-    TextDirection? textDirection,
-    VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline? textBaseline, // NO DEFAULT: we don't know what the text's baseline should be
-    List<Widget> children = const <Widget>[],
-  }) : super(
-          children: children,
-          key: key,
-          mainAxisAlignment: mainAxisAlignment,
-          mainAxisSize: mainAxisSize,
-          crossAxisAlignment: crossAxisAlignment,
-          textDirection: textDirection,
-          verticalDirection: verticalDirection,
-          textBaseline: textBaseline,
-        );
-}

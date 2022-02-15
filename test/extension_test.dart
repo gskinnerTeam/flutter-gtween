@@ -20,6 +20,7 @@ void main() {
     void handleComplete(GTweenerController _) {}
     expect(tweener.withAutoPlay(false).autoPlay, false);
     expect(tweener.withAutoPlay(true).autoPlay, true);
+
     final tweens = [const GFade()];
     expect(tweener.withTweens(tweens).tweens, tweens);
     expect(tweener.addTween(const GFade()).tweens.length, 1);
