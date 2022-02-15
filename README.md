@@ -62,6 +62,7 @@ FlutterLogo().gTween.custom(builder: (_, child, anim) {
     * bounce, flash, pulse, rubberband, shakeX, shakeY, swing, tada, jello, heartbeat
     * Motion effects (zoomInDown, slideInLeft, bounceOut, rotateInDownLeft. lightSpeedInRight, flipInX, fadeOutBottomRight  etc)
   * Add a 'useDelay' param for restart/play
+  * (maybe) Add mirror/repeat/yoyo functionality for play/restart
   * Add tests around changing the delay or duration externally.
   * Add tests for onComplete and onInit
   * Add tests for auto-play / manual play
