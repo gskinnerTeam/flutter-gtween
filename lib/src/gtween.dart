@@ -11,15 +11,19 @@ import 'package:gtween/gtween.dart';
 ///       Can't figure out how to do it, since `late` can't be used in consts.
 ///       Might be a FOL. We could just let it be non-const and cache tween and anim using `late`
 abstract class GTween<T> {
-  const GTween({required this.from, required this.to, this.curve});
+  GTween({required this.from, required this.to, this.curve});
   final T from;
   final T to;
   final Curve? curve;
 
-  // late final CurvedAnimation? _curvedAnim;
-  // late final Tween _tween = Tween(begin: from, end: to);
+  CurvedAnimation? _curvedAnim;
+  late final Tween<T> _tween = Tween(begin: from, end: to);
 
   Widget build(Widget child, Animation<double> anim);
+
+  Widget withAnimatedBuilder(Animation<double> anim, Widget Function(Animation<double> anim) builder) {
+    return AnimatedBuilder(animation: anim, builder: (_, __) => builder(anim));
+  }
 
   /// Enables alternate syntax.
   ///   GFade().tween(Logo());
@@ -28,17 +32,14 @@ abstract class GTween<T> {
 
   /// Wraps a CurvedAnimation if a curve is defined, returns original anim if not.
   /// Also applies a Tween to map the anim.value : from/to
-  Animation<double> curveAnim(Animation<double> anim) => curve == null ? anim : _getCurvedAnim(anim);
-
-  /// Applies both the current curve as well as the tween mapping
-  Animation<T> tweenAndCurveAnim(Animation<double> anim, {bool tween = true}) {
-    //return curveAnim(anim).drive(_tween);
-    return curveAnim(anim).drive(Tween(begin: from, end: to));
+  Animation<double> curveAnim(Animation<double> anim) {
+    if (curve == null) return anim;
+    _curvedAnim ??= CurvedAnimation(parent: anim, curve: curve!);
+    return _curvedAnim!;
   }
 
-  Animation<double> _getCurvedAnim(Animation<double> anim) {
-    // curvedAnim ??= CurvedAnimation(parent: anim, curve: curve!);
-    // return curvedAnim!;
-    return CurvedAnimation(parent: anim, curve: curve!);
+  /// Applies both the current curve as well as the tween mapping
+  Animation<T> tweenAndCurveAnim(Animation<double> anim) {
+    return curveAnim(anim).drive(_tween);
   }
 }

@@ -22,7 +22,7 @@ class GTweener<T> extends StatefulWidget {
     this.duration,
     this.delay,
     this.autoPlay = true,
-    this.curve = Curves.linear,
+    this.curve,
     this.onInit,
     this.onUpdate,
     this.onComplete,
@@ -45,7 +45,7 @@ class GTweener<T> extends StatefulWidget {
   final bool autoPlay;
 
   /// The easing curve, defaults to linear.
-  final Curve curve;
+  final Curve? curve;
 
   /// Called once, when the tweener is first initialized.
   final TweenCallback? onInit;
@@ -71,6 +71,8 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
 
   // Controller is public so it can be accessed externally
   late final GTweenerController controller = GTweenerController(_anim);
+
+  Animation<double>? _curvedAnim;
 
   @override
   void initState() {
@@ -112,7 +114,7 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
     if (_anim.isCompleted) {
       widget.onComplete?.call(controller);
     }
-    setState(() {});
+    // setState(() {});
   }
 
   @override
@@ -121,11 +123,12 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
     for (var tween in widget.tweens) {
       Animation<double> tweenAnim = _anim;
       // If the tween has no curve of its own, apply the parent curve
-      if (tween.curve == null) {
-        tweenAnim = CurvedAnimation(parent: _anim, curve: widget.curve);
+      if (tween.curve == null && widget.curve != null) {
+        _curvedAnim ??= CurvedAnimation(parent: _anim, curve: widget.curve!);
+        tweenAnim = _curvedAnim!;
       }
       // Build the tween at current position with the desired curve
-      child = tween.build(child, tweenAnim);
+      return tween.build(child, tweenAnim);
     }
     return child;
   }

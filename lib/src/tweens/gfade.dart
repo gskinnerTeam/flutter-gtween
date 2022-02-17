@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 
 class GFade extends GTween<double> {
-  const GFade({double from = 0, double to = 1, Curve? curve}) : super(from: from, to: to, curve: curve);
+  GFade({double from = 0, double to = 1, Curve? curve}) : super(from: from, to: to, curve: curve);
 
+  FadeTransition? _fade;
   @override
   Widget build(Widget child, Animation<double> anim) {
-    return FadeTransition(opacity: tweenAndCurveAnim(anim), child: child);
+    _fade ??= FadeTransition(opacity: anim, child: child);
+    return _fade!;
   }
 }
 

@@ -21,9 +21,9 @@ void main() {
     expect(tweener.withAutoPlay(false).autoPlay, false);
     expect(tweener.withAutoPlay(true).autoPlay, true);
 
-    final tweens = [const GFade()];
+    final tweens = [GFade()];
     expect(tweener.withTweens(tweens).tweens, tweens);
-    expect(tweener.addTween(const GFade()).tweens.length, 1);
+    expect(tweener.addTween(GFade()).tweens.length, 1);
     expect(tweener.withDuration(2.seconds).duration, 2.seconds);
     expect(tweener.withCurve(Curves.bounceInOut).curve, Curves.bounceInOut);
     expect(tweener.withDelay(3.seconds).delay, 3.seconds);

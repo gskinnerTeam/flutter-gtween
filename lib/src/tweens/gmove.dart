@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 
 class GMove extends GTween<Offset> {
-  const GMove({Offset from = Offset.zero, Offset to = Offset.zero, Curve? curve})
-      : super(from: from, to: to, curve: curve);
+  GMove({Offset from = Offset.zero, Offset to = Offset.zero, Curve? curve}) : super(from: from, to: to, curve: curve);
 
   @override
-  Widget build(Widget child, Animation<double> anim) =>
-      Transform.translate(offset: tweenAndCurveAnim(anim).value, child: child);
+  Widget build(Widget child, Animation<double> anim) {
+    return withAnimatedBuilder(anim, (anim) {
+      return Transform.translate(offset: tweenAndCurveAnim(anim).value, child: child);
+    });
+  }
 }
 
 extension GMoveExtension on GTweener {

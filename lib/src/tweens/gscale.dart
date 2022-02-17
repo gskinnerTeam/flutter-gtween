@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 
 class GScale extends GTween<double> {
-  const GScale({double from = 0, double to = 1, Curve? curve}) : super(from: from, to: to, curve: curve);
+  GScale({double from = 0, double to = 1, Curve? curve}) : super(from: from, to: to, curve: curve);
   @override
   Widget build(Widget child, Animation<double> anim) =>
-      Transform.scale(scale: tweenAndCurveAnim(anim).value, child: child);
+      withAnimatedBuilder(anim, (anim) => Transform.scale(scale: tweenAndCurveAnim(anim).value, child: child));
 }
 
 /// ScaleX
 class GScaleX extends GTween<double> {
-  const GScaleX({double from = 0, double to = 1, Curve? curve}) : super(from: from, to: to, curve: curve);
+  GScaleX({double from = 0, double to = 1, Curve? curve}) : super(from: from, to: to, curve: curve);
   @override
   Widget build(Widget child, Animation<double> anim) =>
-      Transform.scale(scaleX: tweenAndCurveAnim(anim).value, child: child);
+      withAnimatedBuilder(anim, (anim) => Transform.scale(scaleX: tweenAndCurveAnim(anim).value, child: child));
 }
 
 /// ScaleY
 class GScaleY extends GTween<double> {
-  const GScaleY({double from = 0, double to = 1, Curve? curve}) : super(from: from, to: to, curve: curve);
+  GScaleY({double from = 0, double to = 1, Curve? curve}) : super(from: from, to: to, curve: curve);
   @override
   Widget build(Widget child, Animation<double> anim) =>
-      Transform.scale(scaleY: tweenAndCurveAnim(anim).value, child: child);
+      withAnimatedBuilder(anim, (anim) => Transform.scale(scaleY: tweenAndCurveAnim(anim).value, child: child));
 }
 
 /// Extensions

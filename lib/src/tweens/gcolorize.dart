@@ -8,9 +8,11 @@ class GColorize extends GTween<Color?> {
   final BlendMode blendMode;
   @override
   Widget build(Widget child, Animation<double> anim) {
-    Color? color = curveAnim(anim).drive(ColorTween(begin: from, end: to)).value;
-    final filter = ColorFilter.mode(color ?? Colors.transparent, blendMode);
-    return ColorFiltered(colorFilter: filter, child: child);
+    return withAnimatedBuilder(anim, (anim) {
+      Color? color = curveAnim(anim).drive(ColorTween(begin: from, end: to)).value;
+      final filter = ColorFilter.mode(color ?? Colors.transparent, blendMode);
+      return ColorFiltered(colorFilter: filter, child: child);
+    });
   }
 }
 

@@ -9,7 +9,7 @@ void main() {
       const FlutterLogo(),
       const FlutterLogo(),
       const FlutterLogo(),
-    ].gTweenSequence([const GFade()], maxIndex: 2);
+    ].gTweenSequence([GFade()], maxIndex: 2);
 
     expect((widgets[0] as GTweener).tweens.first is GFade, true);
     expect(((widgets[0] as GTweener).delay), 0.seconds);
@@ -20,7 +20,7 @@ void main() {
     widgets = [
       const FlutterLogo(),
       const FlutterLogo(),
-    ].gTweenSequence([const GFade()], delay: 1.seconds, interval: .5.seconds);
+    ].gTweenSequence([GFade()], delay: 1.seconds, interval: .5.seconds);
 
     expect(((widgets[0] as GTweener).delay), 1.seconds);
     expect(((widgets[1] as GTweener).delay), 1.seconds + .5.seconds);

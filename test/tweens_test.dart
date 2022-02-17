@@ -14,27 +14,27 @@ void main() {
     }
 
     /// Fade
-    final fade = buildTween(const GFade(curve: Curves.easeOut)) as FadeTransition;
+    final fade = buildTween(GFade(curve: Curves.easeOut)) as FadeTransition;
     expect(fade.opacity.value, Curves.easeOut.transform(.5));
 
     /// Scale
-    final scale = buildTween(const GScale(curve: Curves.elasticIn)) as Transform;
+    final scale = buildTween(GScale(curve: Curves.elasticIn)) as Transform;
     expect(scale.transform.entry(0, 0), Curves.elasticIn.transform(.5));
     expect(scale.transform.entry(1, 1), Curves.elasticIn.transform(.5));
     // ScaleX
-    final scaleX = buildTween(const GScaleX(curve: Curves.easeOut)) as Transform;
+    final scaleX = buildTween(GScaleX(curve: Curves.easeOut)) as Transform;
     expect(scaleX.transform.entry(0, 0), Curves.easeOut.transform(.5));
     // ScaleY
-    final scaleY = buildTween(const GScaleY(curve: Curves.easeInCubic)) as Transform;
+    final scaleY = buildTween(GScaleY(curve: Curves.easeInCubic)) as Transform;
     expect(scaleY.transform.entry(1, 1), Curves.easeInCubic.transform(.5));
 
     /// Move
-    final move = buildTween(const GMove(from: Offset(-100, 0))) as Transform;
+    final move = buildTween(GMove(from: Offset(-100, 0))) as Transform;
     final moveComparison = Transform.translate(offset: const Offset(-50, 0));
     expect(move.transform, moveComparison.transform);
 
     /// Rotate
-    final rotation = buildTween(const GRotate(from: -90)) as Transform;
+    final rotation = buildTween(GRotate(from: -90)) as Transform;
     var rotatedMinus45 = Transform.rotate(angle: -45 * GRotate.degreesToRad);
     expect(rotatedMinus45.transform, rotation.transform);
 

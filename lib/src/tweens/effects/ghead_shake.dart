@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 
 class GHeadShake extends GTween<double> {
-  const GHeadShake([this.magnitude = 1]) : super(from: 0, to: 1, curve: null);
+  GHeadShake([this.magnitude = 1]) : super(from: 0, to: 1, curve: null);
   static final defaultDuration = .4.seconds;
   final double magnitude;
 
@@ -16,8 +16,10 @@ class GHeadShake extends GTween<double> {
 
   @override
   Widget build(Widget child, Animation<double> anim) {
-    double x = sin((anim.value) * pi * 4);
-    return Transform.translate(offset: Offset(x * 5 * magnitude, 0), child: child);
+    return withAnimatedBuilder(anim, (anim) {
+      double x = sin((anim.value) * pi * 4);
+      return Transform.translate(offset: Offset(x * 5 * magnitude, 0), child: child);
+    });
   }
 }
 
