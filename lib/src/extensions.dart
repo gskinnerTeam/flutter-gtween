@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 
 /// Add `gTweener` to all widgets
-extension GTweenerExtension on Widget {
+extension GTweenWidgetExtensions on Widget {
   GTweener get gTweener => GTweener(const [], child: this);
 }
 
 /// Add staggered animation to a lists of widgets
-extension ListExtensions on List<Widget> {
+extension GTweenListExtensions on List<Widget> {
   /// Wraps each list child in a tweener and sets the various params / callbacks.
   /// Calculates the delay for each child using:
   ///   delay + interval * childIndex
   /// Will skip any delay for children beyond maxIndex, but will still apply the tween.
-  List<Widget> gTweenSequence(
+  List<Widget> gTweenInterval(
     List<GTween> tweens, {
     Duration? interval,
     Curve curve = Curves.linear,
@@ -35,7 +35,7 @@ extension ListExtensions on List<Widget> {
 }
 
 /// Add shortcuts to int and double to to make it easier to work with duration
-extension DurationExtensions on int {
+extension GTweenIntDurationExtensions on int {
   Duration get microseconds => Duration(microseconds: this);
   Duration get milliseconds => Duration(milliseconds: this);
   Duration get seconds => Duration(seconds: this);
@@ -44,7 +44,7 @@ extension DurationExtensions on int {
   Duration get days => Duration(days: this);
 }
 
-extension DoubleDurationExtensions on double {
+extension GTweenDoubleDurationExtensions on double {
   Duration get seconds => Duration(milliseconds: (this * 1000).round());
 }
 

@@ -90,16 +90,7 @@ class _BenchmarkState extends State<Benchmark> {
             return Positioned(
               top: 20.0 + rnd.nextInt(300),
               left: 20.0 + rnd.nextInt(300),
-              child: Opacity(
-                opacity: _enableRendering ? 1 : 0,
-                child: !_useGTween
-                    ? _FadeInOut()
-                    : const FlutterLogo().gTweener.fade().withInit(
-                        (controller) {
-                          controller.animation.repeat(reverse: true);
-                        },
-                      ),
-              ),
+              child: Opacity(opacity: _enableRendering ? 1 : 0, child: _buildLogo()),
             );
           }),
           Column(
@@ -127,10 +118,13 @@ class _BenchmarkState extends State<Benchmark> {
     );
   }
 
-  void _handleSliderChanged(v) => setState(() {
-        _tweenSliderValue = v;
-      });
+  StatefulWidget _buildLogo() => !_useGTween
+      ? _FadeInOut()
+      : const FlutterLogo().gTweener.fade().withInit(
+            (controller) => controller.animation.repeat(reverse: true),
+          );
 
+  void _handleSliderChanged(v) => setState(() => _tweenSliderValue = v);
   void _handleShowTweensToggled(_) => setState(() => _enableRendering = !_enableRendering);
   void _handleUseGTweenToggled(_) => setState(() => _useGTween = !_useGTween);
 }
@@ -150,9 +144,7 @@ class __FadeInOutState extends State<_FadeInOut> with SingleTickerProviderStateM
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FadeTransition(opacity: _anim, child: const FlutterLogo());
-  }
+  Widget build(BuildContext context) => FadeTransition(opacity: _anim, child: const FlutterLogo());
 }
 
 class TweenExamples extends StatefulWidget {
@@ -198,7 +190,7 @@ class _TweenExamplesState extends State<TweenExamples> {
                     GTweener([GFade()], child: const FlutterLogo(size: 25)),
 
                     /// simple fade (single shot) w/ extension style
-                    const FlutterLogo(size: 50).gTweener.fade(),
+                    const FlutterLogo(size: 50).gTweener.fade(to: 0),
 
                     /// simple fade (single shot) w/ .tween() shortcut style
                     GFade().tween(const FlutterLogo(size: 50)),
@@ -253,7 +245,7 @@ class _TweenExamplesState extends State<TweenExamples> {
                         FlutterLogo(),
                         FlutterLogo(),
                         FlutterLogo(),
-                      ].gTweenSequence([GFade()], interval: 1.seconds, onInit: addController),
+                      ].gTweenInterval([GFade()], interval: 1.seconds, onInit: addController),
                     ),
 
                     /// Head-shake with cached controller (widget style)

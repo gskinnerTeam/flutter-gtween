@@ -43,3 +43,5 @@ abstract class GTween<T> {
     return curveAnim(anim).drive(_tween);
   }
 }
+
+extension A on int {}
