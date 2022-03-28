@@ -1,15 +1,21 @@
 import 'package:flutter/widgets.dart';
 import 'package:gtween/gtween.dart';
 
+class AnimatedChild extends StatelessWidget {
+  const AnimatedChild(this.child, this.animation, {Key? key}) : super(key: key);
+  final Widget child;
+  final Listenable animation;
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(animation: animation, builder: (_, __) => child);
+}
+
 /// Base class for all GTweens. Defines the common from/to/curve fields that all tweens require.
 ///
 /// Provides utility methods for the concrete tweens to use.
 ///
 /// Declares a generic `tween()` method which allows any tween to wrap itself around a widget.
 /// This provides an opportunity for sub-classes to implement opinionated GTweener defaults (see [GHeadShake] for an example of this)
-/// TODO: See if we can cache CurvedAnim and Tween while still allowing const constructor.
-///       Can't figure out how to do it, since `late` can't be used in consts.
-///       Might be a FOL. We could just let it be non-const and cache tween and anim using `late`
 abstract class GTween<T> {
   GTween({required this.from, required this.to, this.curve});
   final T from;
@@ -22,7 +28,7 @@ abstract class GTween<T> {
   Widget build(Widget child, Animation<double> anim);
 
   Widget withAnimatedBuilder(Animation<double> anim, Widget Function(Animation<double> anim) builder) {
-    return AnimatedBuilder(animation: anim, builder: (_, __) => builder(anim));
+    return AnimatedChild(builder(anim), anim);
   }
 
   /// Enables alternate syntax.
@@ -39,9 +45,5 @@ abstract class GTween<T> {
   }
 
   /// Applies both the current curve as well as the tween mapping
-  Animation<T> tweenAndCurveAnim(Animation<double> anim) {
-    return curveAnim(anim).drive(_tween);
-  }
+  Animation<T> tweenAndCurveAnim(Animation<double> anim) => curveAnim(anim).drive(_tween);
 }
-
-extension A on int {}

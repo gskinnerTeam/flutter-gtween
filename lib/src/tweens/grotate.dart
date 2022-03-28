@@ -15,7 +15,7 @@ class GRotate extends GTween<double> {
 
 /// Extensions
 extension GRotateExtension on GTweener {
-  GTweener rotate({double from = 0, double to = 1, Curve? curve}) {
+  GTweener rotate({double from = 0, double to = 0, Curve? curve}) {
     return addTween(GRotate(curve: curve, from: from, to: to));
   }
 }

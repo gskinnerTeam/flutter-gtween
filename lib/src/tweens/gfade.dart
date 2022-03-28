@@ -7,7 +7,7 @@ class GFade extends GTween<double> {
   FadeTransition? _fade;
   @override
   Widget build(Widget child, Animation<double> anim) {
-    _fade ??= FadeTransition(opacity: anim, child: child);
+    _fade ??= FadeTransition(opacity: tweenAndCurveAnim(anim), child: child);
     return _fade!;
   }
 }
