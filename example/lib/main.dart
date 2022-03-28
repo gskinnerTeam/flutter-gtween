@@ -3,48 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gtween/gtween.dart';
 import 'package:statsfl/statsfl.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-
-class VideoExample extends StatefulWidget {
-  const VideoExample({Key? key}) : super(key: key);
-
-  @override
-  State<VideoExample> createState() => _VideoExampleState();
-}
-
-class _VideoExampleState extends State<VideoExample> {
-  final _controller = YoutubePlayerController(
-    initialVideoId: '1AxXF038-lY',
-    params: YoutubePlayerParams(
-      autoPlay: true,
-    ),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Youtube Player IFrame Demo',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.deepPurple,
-        scaffoldBackgroundColor: Colors.black,
-      ),
-      debugShowCheckedModeBanner: false,
-      home: Stack(
-        children: [
-          FlutterLogo(size: 200),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(50),
-              child: YoutubePlayerIFrame(controller: _controller),
-            ),
-          ),
-          Positioned(right: 0, bottom: 0, child: FlutterLogo(size: 200)),
-        ],
-      ),
-    );
-  }
-}
 
 void main() {
   runApp(const MyApp());
@@ -59,94 +17,15 @@ class MyApp extends StatelessWidget {
         sampleTime: 2,
         width: 800,
         child: const MaterialApp(
-          home: VideoExample(),
-          //home: TweenExamples(),
+          home: TweenExamples(),
           // home: Material(child: Benchmark()),
         ),
       );
 }
 
-class Benchmark extends StatefulWidget {
-  const Benchmark({Key? key}) : super(key: key);
-  @override
-  _BenchmarkState createState() => _BenchmarkState();
-}
-
-class _BenchmarkState extends State<Benchmark> {
-  double _tweenSliderValue = .2;
-  bool _enableRendering = false;
-  bool _useGTween = false;
-
-  int get _tweenCount => 10 + (_tweenSliderValue * 5000).round();
-  @override
-  Widget build(BuildContext context) {
-    final rnd = Random(0);
-    return Center(
-      child: SizedBox(
-        width: 400,
-        height: 400,
-        child: Stack(children: [
-          ...List.generate(_tweenCount, (index) {
-            return Positioned(
-              top: 20.0 + rnd.nextInt(300),
-              left: 20.0 + rnd.nextInt(300),
-              child: Opacity(opacity: _enableRendering ? 1 : 0, child: _buildLogo()),
-            );
-          }),
-          Column(
-            children: [
-              CheckboxListTile(
-                title: Text('Show Tweens'),
-                value: _enableRendering,
-                onChanged: _handleShowTweensToggled,
-              ),
-              CheckboxListTile(
-                title: Text('use gtween'),
-                value: _useGTween,
-                onChanged: _handleUseGTweenToggled,
-              ),
-              Row(
-                children: [
-                  Expanded(child: Slider(value: _tweenSliderValue, onChanged: _handleSliderChanged)),
-                  Text('$_tweenCount'),
-                ],
-              ),
-            ],
-          )
-        ]),
-      ),
-    );
-  }
-
-  StatefulWidget _buildLogo() => !_useGTween
-      ? _FadeInOut()
-      : const FlutterLogo().gTweener.fade().withInit(
-            (controller) => controller.animation.repeat(reverse: true),
-          );
-
-  void _handleSliderChanged(v) => setState(() => _tweenSliderValue = v);
-  void _handleShowTweensToggled(_) => setState(() => _enableRendering = !_enableRendering);
-  void _handleUseGTweenToggled(_) => setState(() => _useGTween = !_useGTween);
-}
-
-class _FadeInOut extends StatefulWidget {
-  @override
-  __FadeInOutState createState() => __FadeInOutState();
-}
-
-class __FadeInOutState extends State<_FadeInOut> with SingleTickerProviderStateMixin {
-  late final _anim = AnimationController(vsync: this, duration: .3.seconds)..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _anim.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => FadeTransition(opacity: _anim, child: const FlutterLogo());
-}
-
+/// ///////////////////////////////////
+/// Examples / Kitchen Sink
+/// ///////////////////////////////////
 class TweenExamples extends StatefulWidget {
   const TweenExamples({Key? key}) : super(key: key);
 
@@ -186,7 +65,7 @@ class _TweenExamplesState extends State<TweenExamples> {
               Flexible(
                 child: Wrap(
                   children: [
-                    /// simple fade (single shot), widget style
+                    /// simple fade + scale (single shot), widget style
                     GTweener([GFade()], child: const FlutterLogo(size: 25)),
 
                     /// simple fade (single shot) w/ extension style
@@ -220,9 +99,9 @@ class _TweenExamplesState extends State<TweenExamples> {
               Expanded(
                 child: Wrap(
                   children: [
-                    /// controlled fade
+                    /// controlled fade with 2 tweens
                     GTweener(
-                      [GFade()],
+                      [GFade(), GScale()],
                       onInit: addController,
                       child: const FlutterLogo(size: 25),
                     ),
@@ -324,4 +203,88 @@ class _TweenExamplesState extends State<TweenExamples> {
       ),
     );
   }
+}
+
+/// ///////////////////////////////////
+/// Benchmark
+/// ///////////////////////////////////
+class Benchmark extends StatefulWidget {
+  const Benchmark({Key? key}) : super(key: key);
+  @override
+  _BenchmarkState createState() => _BenchmarkState();
+}
+
+class _BenchmarkState extends State<Benchmark> {
+  double _tweenSliderValue = .2;
+  bool _enableRendering = false;
+  bool _useGTween = false;
+
+  int get _tweenCount => 10 + (_tweenSliderValue * 5000).round();
+  @override
+  Widget build(BuildContext context) {
+    final rnd = Random(0);
+    return Center(
+      child: SizedBox(
+        width: 400,
+        height: 400,
+        child: Stack(children: [
+          ...List.generate(_tweenCount, (index) {
+            return Positioned(
+              top: 20.0 + rnd.nextInt(300),
+              left: 20.0 + rnd.nextInt(300),
+              child: Opacity(opacity: _enableRendering ? 1 : 0, child: _buildLogo()),
+            );
+          }),
+          Column(
+            children: [
+              CheckboxListTile(
+                title: Text('Show Tweens'),
+                value: _enableRendering,
+                onChanged: _handleShowTweensToggled,
+              ),
+              CheckboxListTile(
+                title: Text('use gtween'),
+                value: _useGTween,
+                onChanged: _handleUseGTweenToggled,
+              ),
+              Row(
+                children: [
+                  Expanded(child: Slider(value: _tweenSliderValue, onChanged: _handleSliderChanged)),
+                  Text('$_tweenCount'),
+                ],
+              ),
+            ],
+          )
+        ]),
+      ),
+    );
+  }
+
+  StatefulWidget _buildLogo() => !_useGTween
+      ? _FadeInOut()
+      : const FlutterLogo().gTweener.fade().withInit(
+            (controller) => controller.animation.repeat(reverse: true),
+          );
+
+  void _handleSliderChanged(v) => setState(() => _tweenSliderValue = v);
+  void _handleShowTweensToggled(_) => setState(() => _enableRendering = !_enableRendering);
+  void _handleUseGTweenToggled(_) => setState(() => _useGTween = !_useGTween);
+}
+
+class _FadeInOut extends StatefulWidget {
+  @override
+  __FadeInOutState createState() => __FadeInOutState();
+}
+
+class __FadeInOutState extends State<_FadeInOut> with SingleTickerProviderStateMixin {
+  late final _anim = AnimationController(vsync: this, duration: .3.seconds)..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(opacity: _anim, child: const FlutterLogo());
 }

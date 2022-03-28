@@ -128,7 +128,7 @@ class GTweenerState extends State<GTweener> with SingleTickerProviderStateMixin 
         tweenAnim = _curvedAnim!;
       }
       // Build the tween at current position with the desired curve
-      return tween.build(child, tweenAnim);
+      child = tween.build(child, tweenAnim);
     }
     return child;
   }
