@@ -100,7 +100,12 @@ class _TweenExamplesState extends State<TweenExamples> {
                 child: Wrap(
                   children: [
                     /// controlled fade with 2 tweens
-                    FlutterLogo(size: 25).gTweener.fade().scale().withInit(addController).withDuration(1.seconds),
+                    FlutterLogo(size: 25)
+                        .gTweener
+                        .fade()
+                        .scale(curve: Curves.easeOutBack)
+                        .withInit(addController)
+                        .withDuration(1.seconds),
 
                     /// scale+rotate with extensions, uses onInit to cache the controller
                     const FlutterLogo(size: 75).gTweener.scale().rotate(from: -180).withInit(addController),

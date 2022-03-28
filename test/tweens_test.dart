@@ -19,37 +19,37 @@ void main() {
 
     /// Scale
     /// TODO: Fix these tests, they are broken because a AnimatedBuilder wraps some of the tweens
-    final scale = (buildTween(GScale(curve: Curves.elasticIn)) as AnimatedChild).child as Transform;
+    final scale = (buildTween(GScale(curve: Curves.elasticIn)) as AnimatedChild).buildChild() as Transform;
     expect(scale.transform.entry(0, 0), Curves.elasticIn.transform(.5));
     expect(scale.transform.entry(1, 1), Curves.elasticIn.transform(.5));
     // ScaleX
-    final scaleX = (buildTween(GScaleX(curve: Curves.easeOut)) as AnimatedChild).child as Transform;
+    final scaleX = (buildTween(GScaleX(curve: Curves.easeOut)) as AnimatedChild).buildChild() as Transform;
     expect(scaleX.transform.entry(0, 0), Curves.easeOut.transform(.5));
     // ScaleY
-    final scaleY = (buildTween(GScaleY(curve: Curves.easeInCubic)) as AnimatedChild).child as Transform;
+    final scaleY = (buildTween(GScaleY(curve: Curves.easeInCubic)) as AnimatedChild).buildChild() as Transform;
     expect(scaleY.transform.entry(1, 1), Curves.easeInCubic.transform(.5));
 
     /// Move
-    final move = (buildTween(GMove(from: Offset(-100, 0))) as AnimatedChild).child as Transform;
+    final move = (buildTween(GMove(from: Offset(-100, 0))) as AnimatedChild).buildChild() as Transform;
     final moveComparison = Transform.translate(offset: const Offset(-50, 0));
     expect(move.transform, moveComparison.transform);
 
     /// Rotate
-    final rotation = (buildTween(GRotate(from: -90)) as AnimatedChild).child as Transform;
+    final rotation = (buildTween(GRotate(from: -90)) as AnimatedChild).buildChild() as Transform;
     var rotatedMinus45 = Transform.rotate(angle: -45 * GRotate.degreesToRad);
     expect(rotatedMinus45.transform, rotation.transform);
 
     /// Color
     final colorTween = ColorTween(begin: Colors.red, end: Colors.blue);
-    final color =
-        (buildTween(GColorize(from: colorTween.begin, to: colorTween.end)) as AnimatedChild).child as ColorFiltered;
+    final color = (buildTween(GColorize(from: colorTween.begin, to: colorTween.end)) as AnimatedChild).buildChild()
+        as ColorFiltered;
     final colorComparison = const AlwaysStoppedAnimation<double>(.5).drive(colorTween);
     expect(color.colorFilter, ColorFilter.mode(colorComparison.value!, BlendMode.srcIn)); // Custom
     /// Custom
     final custom = (buildTween(
       GCustom(builder: (child, anim) => FadeTransition(child: child, opacity: anim)),
     ) as AnimatedChild)
-        .child as FadeTransition;
+        .buildChild() as FadeTransition;
     expect(custom.opacity.value, .5);
 
     //TODO: Add blur

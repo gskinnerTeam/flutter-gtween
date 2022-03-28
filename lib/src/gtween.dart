@@ -2,12 +2,14 @@ import 'package:flutter/widgets.dart';
 import 'package:gtween/gtween.dart';
 
 class AnimatedChild extends StatelessWidget {
-  const AnimatedChild(this.child, this.animation, {Key? key}) : super(key: key);
-  final Widget child;
-  final Listenable animation;
+  const AnimatedChild(this.builder, this.animation, {Key? key}) : super(key: key);
+  final Widget Function(Animation<double> anim) builder;
+  final Animation<double> animation;
+
+  Widget buildChild() => builder(animation);
 
   @override
-  Widget build(BuildContext context) => AnimatedBuilder(animation: animation, builder: (_, __) => child);
+  Widget build(BuildContext context) => AnimatedBuilder(animation: animation, builder: (_, __) => buildChild());
 }
 
 /// Base class for all GTweens. Defines the common from/to/curve fields that all tweens require.
@@ -28,7 +30,7 @@ abstract class GTween<T> {
   Widget build(Widget child, Animation<double> anim);
 
   Widget withAnimatedBuilder(Animation<double> anim, Widget Function(Animation<double> anim) builder) {
-    return AnimatedChild(builder(anim), anim);
+    return AnimatedChild(builder, anim);
   }
 
   /// Enables alternate syntax.

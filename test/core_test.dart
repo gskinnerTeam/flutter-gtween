@@ -9,13 +9,20 @@ BuildContext? context;
 void main() {
   testWidgets('core curves and animation controller tests', (tester) async {
     // Start a tween with linear curve
-    var tweener = const FlutterLogo().gTweener.fade();
+    var tweener = const FlutterLogo().gTweener.fade().scale();
     await tester.pumpWidget(TestApp(tweener.withDuration(1.seconds)));
     // Play app for 0.5s and check that opacity is .5
     await tester.pump(.5.seconds);
     expect(
       tester.widget(find.byType(FadeTransition).last),
       isA<FadeTransition>().having((ft) => ft.opacity.value, 'opacity', .5),
+    );
+    Transform expectedScale =
+        (GScale().build(const Placeholder(), const AlwaysStoppedAnimation<double>(.5)) as AnimatedChild).buildChild()
+            as Transform;
+    expect(
+      tester.widget(find.byType(AnimatedChild).last),
+      isA<AnimatedChild>().having((c) => (c.buildChild() as Transform).transform, 'scale', expectedScale.transform),
     );
     // Let animation finish, and check that opacity is 1
     await tester.pumpAndSettle();
